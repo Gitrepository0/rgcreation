@@ -63,3 +63,8 @@ jobs:
         shell: powershell
         run: |
           terraform plan -no-color
+
+      - name: Terraform Apply
+        shell: powershell
+        run: 
+           terraform apply -auto-approve tfplan    
