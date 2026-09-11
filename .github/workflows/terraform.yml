@@ -1,11 +1,9 @@
-```yaml
 name: Terraform Azure Deployment
 
 on:
   push:
     branches:
       - main
-
   workflow_dispatch:
 
 jobs:
@@ -18,28 +16,22 @@ jobs:
       contents: read
 
     steps:
-
-      # 1. Checkout repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. Verify runner and repository path
       - name: Verify Repository
         shell: powershell
         run: |
           Write-Host "Current Directory:"
           Get-Location
-
-          Write-Host "`nRepository Files:"
+          Write-Host "Repository Files:"
           Get-ChildItem -Force
 
-      # 3. Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.14.7
 
-      # 4. Azure Login using OIDC
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -47,39 +39,32 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      # 5. Verify Azure Login
       - name: Check Azure Account
         shell: powershell
         run: |
           az account show
 
-      # 6. Terraform Init
       - name: Terraform Init
         shell: powershell
         run: |
           terraform init
 
-      # 7. Terraform Format Check
       - name: Terraform Format Check
         shell: powershell
         run: |
           terraform fmt -check -recursive
 
-      # 8. Terraform Validate
       - name: Terraform Validate
         shell: powershell
         run: |
           terraform validate
 
-      # 9. Terraform Plan
       - name: Terraform Plan
         shell: powershell
         run: |
           terraform plan -out=tfplan
 
-      # 10. Terraform Apply
       - name: Terraform Apply
         shell: powershell
         run: |
           terraform apply -auto-approve tfplan
-```
