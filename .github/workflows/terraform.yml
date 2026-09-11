@@ -62,7 +62,7 @@ jobs:
       - name: Terraform Plan
         shell: powershell
         run: |
-          terraform plan -no-color
+          terraform plan -out=tfplan -no-color
 
       - name: Terraform Apply
         shell: powershell
