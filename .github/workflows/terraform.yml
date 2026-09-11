@@ -15,25 +15,27 @@ jobs:
       contents: read
 
     steps:
+
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Verify Terraform Files
+      - name: Check Current Directory
         shell: powershell
         run: |
           Write-Host "Current Directory:"
           Get-Location
 
-          Write-Host "main.tf:"
+          Write-Host "`nFiles:"
+          Get-ChildItem -Force
+
+          Write-Host "`nmain.tf:"
           Get-Item .\main.tf
 
-          Write-Host "Terraform Files:"
-          Get-ChildItem *.tf
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.14.7
+      - name: Check Terraform
+        shell: powershell
+        run: |
+          where.exe terraform
+          terraform version
 
       - name: Azure Login
         uses: azure/login@v2
@@ -42,7 +44,7 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Azure Account
+      - name: Check Azure Account
         shell: powershell
         run: |
           az account show
