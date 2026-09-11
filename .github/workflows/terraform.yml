@@ -1,0 +1,71 @@
+name: Terraform Azure Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    name: Terraform Plan and Apply
+    runs-on: self-hosted
+
+    permissions:
+      id-token: write
+      contents: read
+
+    defaults:
+      run:
+        working-directory: Terraform
+
+    steps:
+
+      # 1. Checkout GitHub repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Install Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.14.7
+
+      # 3. Azure Login using OIDC
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # 4. Verify Azure login
+      - name: Check Azure Account
+        run: |
+          az account show
+
+      # 5. Terraform Init
+      - name: Terraform Init
+        run: |
+          terraform init
+
+      # 6. Terraform Format
+      - name: Terraform Format Check
+        run: |
+          terraform fmt -check -recursive
+
+      # 7. Terraform Validate
+      - name: Terraform Validate
+        run: |
+          terraform validate
+
+      # 8. Terraform Plan
+      - name: Terraform Plan
+        run: |
+          terraform plan -out=tfplan
+
+      # 9. Terraform Apply
+      - name: Terraform Apply
+        run: |
+          terraform apply -auto-approve tfplan
