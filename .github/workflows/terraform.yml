@@ -19,21 +19,21 @@ jobs:
 
     steps:
 
-      # 1. Checkout GitHub repository
+      # 1. Checkout repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 2. Check repository structure
-      - name: Check Repository Files
+      # 2. Verify runner and repository path
+      - name: Verify Repository
         shell: powershell
         run: |
           Write-Host "Current Directory:"
           Get-Location
 
-          Write-Host "`nRepository Contents:"
-          Get-ChildItem
+          Write-Host "`nRepository Files:"
+          Get-ChildItem -Force
 
-      # 3. Install Terraform
+      # 3. Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
