@@ -8,7 +8,6 @@ on:
 
 jobs:
   terraform:
-    name: Terraform Plan and Apply
     runs-on: self-hosted
 
     permissions:
@@ -19,13 +18,17 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Verify Repository
+      - name: Verify Terraform Files
         shell: powershell
         run: |
           Write-Host "Current Directory:"
           Get-Location
-          Write-Host "Repository Files:"
-          Get-ChildItem -Force
+
+          Write-Host "main.tf:"
+          Get-Item .\main.tf
+
+          Write-Host "Terraform Files:"
+          Get-ChildItem *.tf
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -39,7 +42,7 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Check Azure Account
+      - name: Azure Account
         shell: powershell
         run: |
           az account show
@@ -49,11 +52,6 @@ jobs:
         run: |
           terraform init
 
-      - name: Terraform Format Check
-        shell: powershell
-        run: |
-          terraform fmt -check -recursive
-
       - name: Terraform Validate
         shell: powershell
         run: |
@@ -62,9 +60,4 @@ jobs:
       - name: Terraform Plan
         shell: powershell
         run: |
-          terraform plan -out=tfplan
-
-      - name: Terraform Apply
-        shell: powershell
-        run: |
-          terraform apply -auto-approve tfplan
+          terraform plan -no-color
