@@ -1,9 +1,12 @@
-name: Terraform Azure Deployment plan
+name: Terraform Azure CI/CD
 
 on:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
-      - feature/testbranch
+      - main
   workflow_dispatch:
 
 jobs:
@@ -15,28 +18,18 @@ jobs:
       contents: read
 
     steps:
-
+      # Step 1: Code Checkout
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Check Current Directory
+      # Step 2: Check Directory & Terraform
+      - name: Check Environment
         shell: powershell
         run: |
-          Write-Host "Current Directory:"
           Get-Location
-
-          Write-Host "`nFiles:"
-          Get-ChildItem -Force
-
-          Write-Host "`nmain.tf:"
-          Get-Item .\main.tf
-
-      - name: Check Terraform
-        shell: powershell
-        run: |
-          where.exe terraform
           terraform version
 
+      # Step 3: Azure Login via OIDC
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -44,22 +37,27 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Check Azure Account
-        shell: powershell
-        run: |
-          az account show
-
+      # Step 4: Terraform Init
       - name: Terraform Init
         shell: powershell
         run: |
           terraform init
 
+      # Step 5: Terraform Validate
       - name: Terraform Validate
         shell: powershell
         run: |
           terraform validate
 
+      # Step 6: Terraform Plan (Runs for both PR and Push to main)
       - name: Terraform Plan
         shell: powershell
         run: |
           terraform plan -out=tfplan -no-color
+
+      # Step 7: Terraform Apply (Runs ONLY when merged into main branch)
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        shell: powershell
+        run: |
+          terraform apply -auto-approve tfplan
