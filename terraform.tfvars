@@ -1,5 +1,5 @@
     rgvar = {
-      name     = "AzureRG"
+      name     = "Azure_Resource_Group"
       location = "Central India"
     }
 
