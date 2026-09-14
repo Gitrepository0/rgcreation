@@ -1,4 +1,3 @@
-```yaml
 name: Terraform Azure Deployment plan
 
 on:
@@ -64,4 +63,3 @@ jobs:
         shell: powershell
         run: |
           terraform plan -out=tfplan -no-color
-```
